@@ -29,12 +29,14 @@ raw <- list()
 raw$myh16 <- fread("../data/MYH16.csv")
 raw$glud1 <- fread("../data/GLUD1.csv")
 raw$glud2 <- fread("../data/GLUD2.csv")
+attach(raw)
+geneL <- c("myh16" = 2282, "glud1" = 558*3, "glud2" = 558*3)
 ```
 
 ```{r SFS}
-attach(raw)
 ## MYH16
 myh16[,table(`Allele Count European (Non-Finnish)`)]
+
 ```
 ## Including Plots
 

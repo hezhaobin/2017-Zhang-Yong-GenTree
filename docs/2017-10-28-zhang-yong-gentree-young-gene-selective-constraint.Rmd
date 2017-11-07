@@ -1,0 +1,83 @@
+---
+title: Zhang Yong, GenTree, young gene selective constraint
+author: Bin He
+date: '2017-10-28'
+slug: zhang-yong-gentree-young-gene-selective-constraint
+categories:
+  - research note
+tags:
+  - collaboration
+  - population genetics
+  - new genes
+---
+
+[Link](/post/2017/11/07/zhang-yong-gentree-notes-continued) to follow up notes, contains important corrections!
+
+## Summary
+
+I suggest you follow closely [Lan and Pritchard 2016](https://dx.doi.org/10.1126%2Fscience.aad8411), Supplementary Text 2.8.  Here are the steps I think you should take:
+
+1. Use either the 1000 genome or other equivalent dataset to extract a list of SNPs, grouped into synonymous and nonsynonymous (potentially further distinguishing missense and nonsense). 
+
+1. Count their population frequency. At the end of this step, you should have a large table tallying the counts of syn vs nonsyn SNPs at different minor allele frequency.
+
+    optionally, you can polarize the mutations, following the Lan & Pritchard paper. can skip this for the initial analysis
+    
+1. From the large table, summarize the following statistic: proportion of rare syn or nonsyn variants (by minor allele frequency) in 1) single genes 2) within group of genes based on inferred evolutionary age. 
+
+1. Plot this fraction as a function of gene age, separately for syn and nonsyn variants.
+
+## Background
+
+In the latest effort to build a new database for primate specific young genes called GenTree, Zhang Yong and his graduate students wanted to incorporate gene-level statistics reflecting the level of selective constraints. They used dN/dS to characterize _long-term_ selective constraints. This approach is limited to genes sufficiently old to have orthologs in closely related primate species. For very young duplicated genes, even the closest relative like Chimp may have only the parental gene. In such cases, they adopted two methods. The first method is to use the parental gene as reference. The method is modeled after dN/dS, except that dN and dS in this case are calculated between the parental and the child copies instead of the orthologs. In the second method, they plan to utilize the polymorphism data, and this is where my help is needed.
+
+Their first attempt to use polymorphism data to measure the level of selective constraint is to use the "pN/pS" method, [proposed by Zhang Jianzhi](doi.org/10.1093/molbev/msw008) among others. However, as Sergey and Plotkin has pointed out in ["The Population Genetics of dN/dS"](https://doi.org/10.1371/journal.pgen.1000304), this approach is very insensitive. This is because the "pN/pS" approach only utilizes the _counts_ of SNPs that are nonsynonymous or synonymous, regardless of the _population frequencies_. Unlike substitutions, non-lethal, deleterious mutations can still segregate within a population, albeit at lower frequencies. This suggests that a more sensitive detection method is to utlize the site frequency spectrum information. One expects the SFS to be shifted towards low frequencies in genes under strong selective constraints.
+
+## Challenges
+
+### Small number of segregating SNPs per gene
+
+There are two main challenges in using SFS to measure selective constraints in young duplicate genes (or any gene). First, the number of segregating SNPs within an average length gene in human, even when the sample size is large, is still very limited. Let's do a rough estimate: 
+
+Since we are interested in characterizing selective constraints, we may intuitively focus on the nonsynonmous mutations, as they are far more likely than synonymous changes to affect the protein function. In other words, the signal of selective constraints at synonymous sites will be much weaker. 
+
+Now let's look at a model gene that encodes a protein with 500 amino acids, and assume we have a sample of n unrelated individuals. Let's also assume that 2/3 of the potential nucleotide changes are nonsynonymous. Using Waterson's formula, we got
+
+$$K = \sum_{i=1}^{2n-1} i^{-1} \theta_\pi$$
+According to [Keightley and Halligan 2011, p936](https://doi.org/10.1534/genetics.111.128355), $\theta_\pi \approx 0.041%$ for zerofold sites and $\theta_\pi \approx 0.086%$ for fourfold sites. If we use 0.05%, and if we have access to the genome sequences of 65,000 individuals, the formula above gave us about 5 SNPs. Consider that a full SFS for a sample of 65,000 individuals will have $65000*2-1=129999$ elements, the five SNPs is just not going to give us useful information. Even if we "fold" the SFS (count only minor vs major alleles, not derived vs ancestral), the number would still be too small. 
+
+To get meaningful statistics, we need to pool. There are two ways to do it: keep the frequency bins and pool across genes, or combine adjacent frequency bins, e.g. minor allele frequency in (0,0.1],(0.1,0.2], ... , (0.4,0.5] etc. The first approach is what [Lan & Pritchard 2016](https://dx.doi.org/10.1126%2Fscience.aad8411) used for both their Figure 4B and Supplementary Figure 22, 23. This allows one to identify correlation between the level of constraint and another variable, such as gene age.
+
+(Lan & Pritchard 2016) also used the second binning method in Figure 4B, where they essentially reduced the full spectrum into a single summary statistic, namely the fractio of mutations with derived allele frequency < 0.1%. We can try the same statistic, perhaps varying the cutoff and using either derived or minor (folded) allele frequency.
+
+### Demography
+
+It is well known that demography can mimic the effect of selection, and given that human population has experienced an exponential growth, which is still on-going, the effect of that expansion will result in an excess of rare variants, similar as what purifying selection will generate. How will this influence our analyses? One way to avoid this confounding factor is to always compare the SFS for nonsynonymous SNPs vs synonymous SNPs in the same gene(s). It is safe to assume that any demographic forces should influence the two equally. In addition, if we assume that genes in different age groups are equally influenced by demography, then as long as we only analyze the correlation between the fraction of rare variants and gene age, we are fine. Use of neutral expectation for the SFS is, however, problematic. Instead of using the $i^{-1} \theta$ expectation, one needs to use coalescent simulation in combination of a demography model to obtain some sort of expected spectra.
+
+## Other notes
+
+1. In characterizing selective constraints using polymorphism, the most useful statistic is the proportion of rare variants as an approxy for the level of purifying selection. See (Lan & Pritchard 2016, Fig. 4B)
+
+1. Increase the sample size from 2,500 to 67,000 will only give you 1.3 fold increase in the expected number of SNPs. (Lan and Pritchard 2016) said this in their supplementary text 2.8:
+
+    > However, since there may be modest numbers of SNVs per gene this measure is noisy at the level of individual genes, and hence we will only report SFS results for classes of genes.
+
+    This makes me think that we should focus on the trend, e.g. fraction of SNPs with minor allele frequency < 0.1% as a function of gene age (that is, group genes by age), rather than trying to get a gene-level estimate.
+    
+    One reason you might still want to try the gene-level estimate is that most of those 30% new SNPs will be ultra-low frequency, which _might_ increase our ability to detect selective constraints.
+
+1. A more serious issue with this SFS-based approach is that demography can have the same effect on the frequency spectra as selection does. In particular, recent population exponential growth in human has been shown to result in an excess of rare SNPs, most notably for missense, nonsense, splicing and nonsynonymous mutations. See [Fu et al 2013, Nature](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3676746/) Fig. S7.  In that paper, the authors tried hard to account for the effect of demography by simulation. In our case, we might get away by only making internal comparisons between genes of different evolutionary ages, assuming that demography will influence them to the same extent.
+
+1. Using an unfolded SFS, by polarizing the SNPs using an outgroup or parental copy, is not so important if our chief concern is selective constraints. This is because the low frequency bin in a folded SFS consists mostly of low derived frequency SNPs. This is especially true if we focus on potentially deleterious mutatons such as nonsense and missense mutations. This leads to another suggestion: why not count the number of nonsense and missense mutations as a function of gene age?
+
+1. I'm slightly concerned that young duplicate genes might already be enriched in low frequency SNPs, simply because they are young and not necessarily because they are under selective constraints. My intuition is taht if they have arisen so recently that most mutations segregating within them only entered the population not so long ago, they might not have risen to intermediate frequency yet. I'm, however, not certain about this intuition, especially if we are talking only about fixed human-specific genes, rather than human polymorphic genes, since it takes time for a newly duplicated copy to reach fixation. Whether my concern is valid depends on the relative time needed for the duplicate gene to reach fixation and the time for the site frequency spectrum to reach equilibrium.
+
+## Reference
+
+Fu, Wenqing, Timothy D. O’Connor, Goo Jun, Hyun Min Kang, Goncalo Abecasis, Suzanne M. Leal, Stacey Gabriel, et al. “Analysis of 6,515 Exomes Reveals a Recent Origin of Most Human Protein-Coding Variants.” Nature 493, no. 7431 (January 10, 2013): 216–20. https://doi.org/10.1038/nature11690.
+
+Lan, Xun, and Jonathan K. Pritchard. “Coregulation of Tandem Duplicate Genes Slows Evolution of Subfunctionalization in Mammals.” Science (New York, N.Y.) 352, no. 6288 (May 20, 2016): 1009–13. https://doi.org/10.1126/science.aad8411.
+
+Keightley, Peter D., and Adam Eyre-Walker. “Joint Inference of the Distribution of Fitness Effects of Deleterious Mutations and Population Demography Based on Nucleotide Polymorphism Frequencies.” Genetics 177, no. 4 (December 1, 2007): 2251–61. https://doi.org/10.1534/genetics.107.080663.
+
+Keightley, Peter D, and Daniel L Halligan. “Inference of Site Frequency Spectra from High-Throughput Sequence Data: Quantification of Selection on Nonsynonymous and Synonymous Sites in Humans.” Genetics 188, no. 4 (August 2011): 931–40. https://doi.org/10.1534/genetics.111.128355.

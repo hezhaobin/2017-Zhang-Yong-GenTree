@@ -1,0 +1,45 @@
+---
+title: Zhang Yong, GenTree notes continued
+author: Bin He
+date: '2017-11-07'
+slug: zhang-yong-gentree-notes-continued
+categories:
+  - research note
+tags:
+  - collaboration
+  - population genetics
+  - new genes
+---
+
+[Link](/post/2017/10/28/zhang-yong-gentree-young-gene-selective-constraint/) to previous notes on this subject.
+
+## Questions
+
+- Is there enough information in the polymorphism data for estimating the level of selective constraints on a per-gene basis?
+
+- What is the expected level of segregating sites and their frequency spectra?
+
+- Do we need to polarize the mutations?
+
+- If we use excess of rare variants as our main measure, can it be caused by forces other than purifying selection, e.g. demographic or selective sweeps?
+
+## Reference
+
+1. Lek M, Karczewski KJ, Minikel EV, Samocha KE, Banks E, Fennell T, et al. Analysis of protein-coding genetic variation in 60,706 humans. Nature. 2016 Aug 17;536(7616):nature19057. 
+
+1. Moon S, Akey JM. A flexible method for estimating the fraction of fitness influencing mutations from large sequencing data sets. Genome Res [Internet]. 2016 Apr 14 [cited 2017 Nov 7]; Available from: http://genome.cshlp.org/content/early/2016/05/13/gr.203059.115
+
+## Notes
+
+- A correction of what I stated in the [previous post](/post/2017/10/28/zhang-yong-gentree-young-gene-selective-constraint/) about the scarcity of segregating SNPs
+
+   It turned out that the number of segregating SNPs per gene is an order of magnitude higher. For example, in the GLUD1 gene, which is ~2kb in the mature RNA, there are ~200 SNPs compared to ~8 based on my rough calculation. 
+   
+   The reason for this is because I naively assumed equivalence between the nucleotide diversity estimate and the Waterson's theta estimate, i.e. $\theta_\pi = \theta_w$, thinking that only selection can alter it, while in reality, demography could too. Both estimates are determined by the effective population size and mutation rate, i.e. $\theta = 4N_e\mu$. However, the $N_e$ used for the two estimates have different meanings. Because nucleotide diversity estimate is largely determined by intermediate frequency variants, which have relatively old evolution age, it is insensitive to recently population growth and the resulting supply of new mutations. Waterson's theta, by contrast, gives equal weight to all frequency bins. As a result, it reflects the effective population size on a much more recent timescale compared to nucleotide diversity. Because human population has been expanding exponentially in the recent history, it is not surprising that the two estimates diverge strong from one another.
+   
+- In a typical gene, 54% of the segregating variants are singletons.
+
+- In a large sample like ExAC, recurrent mutation events can actually be observed, thus violating the often implicitly assumed infinit-site model in many population genetic measures. Lek et al observed a depletion of singletons among the most highly mutated site-class, i.e. synonymous CpG mutations, and have other lines evidence showing that it is due to recurrent mutations.
+
+- When calculating the SFS, one needs to ensure _equal sample size_ at every site, which means dropping sites below a minimum number of chromosomes sampled, and then sub-sample sites with more than that threshold.
+
